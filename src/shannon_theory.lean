@@ -177,6 +177,24 @@ begin
   },
 end
 
+lemma
+replace_in_sum {f : ι → ℝ} {c : ℝ} (h : ∀ i, f i = c) : ∑ i, f i = ∑ i : ι, c :=
+begin
+  finish,
+end
+
+lemma
+sum_of_constant_fun {f : ι → ℝ} {c : ℝ} (h1 : ∀ i, f i = c) : ∑ i, f i = c * fintype.card ι :=
+begin
+  have h' : ∑ i, f i = ∑ i : ι, c, {finish,},
+  have h'' : ∑ i : ι, c = fintype.card(ι) * c,
+  {
+    rw finset.sum_const,
+    finish,
+  },
+  finish,
+end
+
 /--
 Theorem: The Shannon entropy of a uniform 
 random variable is log(n).
@@ -186,14 +204,11 @@ is_uniform X → Shannon_entropy X = real.log(fintype.card ι) :=
 begin
   intro hX,
   rw Shannon_entropy,
-  have H : - ∑ i, X i * real.log (X i) = ∑ i, X i * real.log (1 / (X i)),
-    by simp only [one_div, real.log_inv, mul_neg_eq_neg_mul_symm, sum_neg_distrib],
   unfold is_uniform at hX,
-  
-  -- have hX2 : ∀ i : ι, 1 / (X i) = fintype.card ι, {sorry},
-  -- have hX3 : ∀ i : ι, (X i) * real.log(1 / (X i)) = (1 / fintype.card ι) * real.log(fintype.card ι), {sorry},
-  -- rw hX2 at H,
-  -- rw is_uniform at hX,
-  -- we need to subsitute 1 / fintype.card ι for (X i).
+  -- TODO: something's off in step 2, I think we need to cast the card from ℕ to ℝ
+  -- calc _ = - ∑ i, (1/(fintype.card ι)) * real.log(1/(fintype.card ι))   : by rw hX
+  -- ... = - (1/(fintype.card ι)) * real.log(1/(fintype.card ι)) * (fintype.card ι) : by rw sum_of_constant_fun
+  -- ... = - real.log(1/fintype.card ι) : by nlinarith
+  -- ... = _ : {by nlinarith, real.log_inv_nonneg,},
   sorry
 end
